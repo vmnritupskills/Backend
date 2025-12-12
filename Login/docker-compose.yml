@@ -1,0 +1,30 @@
+services:
+
+  redis:
+    image: redis:7
+    container_name: lms_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+
+  backend:
+    build: .
+    container_name: lms_backend
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database-2.cbis22o66mf8.ap-south-1.rds.amazonaws.com:5432/test_name
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: Elderstone123
+
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+
+      APP_JWT_SECRET: yoursecretkey
+
+    ports:
+      - "8080:8080"
+
+volumes:
+  redisdata:

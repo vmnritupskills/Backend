@@ -1,23 +1,33 @@
 # ==============================
-# 1) Build Stage
+# 1) BUILD STAGE
 # ==============================
 FROM maven:3.9-eclipse-temurin-21 AS build
 
 WORKDIR /app
 
+# Copy pom & download dependencies
 COPY pom.xml .
-RUN mvn -q -e -B dependency:go-offline
+RUN mvn -B -q dependency:go-offline
 
+# Copy source code
 COPY src ./src
-RUN mvn -q -e -B clean package -DskipTests
+
+# Build jar
+RUN mvn -B -q clean package -DskipTests
+
 
 # ==============================
-# 2) Runtime Stage
+# 2) RUNTIME STAGE
 # ==============================
-FROM eclipse-temurin:21-jdk
+FROM eclipse-temurin:21-jre
 
 WORKDIR /app
+
+# Copy built jar
 COPY --from=build /app/target/*.jar app.jar
 
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Expose application port
+EXPOSE 8082
+
+# Run Spring Boot app
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

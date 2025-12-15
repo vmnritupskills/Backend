@@ -48,10 +48,7 @@
         </dependency>
 
         <!-- ========================== FLYWAY ==================================== -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jdbc</artifactId>
-        </dependency>
+
 
 
 
@@ -88,15 +85,7 @@
         </dependency>
 
         <!-- ========================== REDIS (LETTUCE) ============================ -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
 
-        <dependency>
-            <groupId>io.lettuce</groupId>
-            <artifactId>lettuce-core</artifactId>
-        </dependency>
 
         <!-- ========================== ACTUATOR =================================== -->
         <dependency>

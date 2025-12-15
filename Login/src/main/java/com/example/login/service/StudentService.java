@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 public class StudentService {
 
     private final StudentRepository studentRepository;
-    private final AuditLogger auditLogger;
 
     // ---------------- CREATE STUDENT ----------------
     @Transactional
@@ -35,7 +34,6 @@ public class StudentService {
                 .build();
 
         studentRepository.save(s);
-        auditLogger.log("CREATE_STUDENT", performedBy, s.getId().toString());
 
         return toResp(s);
     }
@@ -65,7 +63,6 @@ public class StudentService {
         }
 
         studentRepository.saveAll(list);
-        auditLogger.log("BULK_CREATE_STUDENT", performedBy, "count=" + list.size());
 
         return list.stream().map(this::toResp).collect(Collectors.toList());
     }
@@ -128,7 +125,6 @@ public class StudentService {
         s.setDateOfAdmission(req.getDateOfAdmission());
 
         studentRepository.save(s);
-        auditLogger.log("UPDATE_STUDENT", performedBy, id.toString());
 
         return toResp(s);
     }
@@ -142,8 +138,6 @@ public class StudentService {
 
         s.setBatchId(batchId);
         studentRepository.save(s);
-
-        auditLogger.log("ASSIGN_BATCH", performedBy, id + "->" + batchId);
 
         return toResp(s);
     }

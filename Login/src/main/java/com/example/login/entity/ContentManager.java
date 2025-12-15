@@ -16,10 +16,10 @@ public class ContentManager {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;   // <-- changed to LONG
 
-    @Column(name = "institution_id", columnDefinition = "uuid", nullable = false)
+    @Column(name = "institution_id", nullable = false)
     private String institutionId;
 
-    @Column(name = "user_id", columnDefinition = "uuid", nullable = false)
+    @Column(name = "user_id",nullable = false)
     private String userId;
 
     @Column(nullable = false)

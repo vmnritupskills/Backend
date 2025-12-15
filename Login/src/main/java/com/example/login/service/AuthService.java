@@ -21,7 +21,6 @@ public class AuthService {
     private final SessionRepository sessionRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtil jwtUtil;
-    private final AuditLogger auditLogger;
     private final PasswordEncoder passwordEncoder;
 
     // ------------------------- REGISTER ADMIN -------------------------
@@ -46,7 +45,6 @@ public class AuthService {
                 .build();
 
         userRepository.save(user);
-        auditLogger.log("REGISTER_ADMIN", req.getEmail(), "Super Admin created");
 
         return generateLoginResponse(user, "ADMIN", null);
     }
@@ -73,7 +71,6 @@ public class AuthService {
                 .build();
 
         userRepository.save(user);
-        auditLogger.log("REGISTER_STUDENT", req.getEmail(), "Student pending approval");
 
         return new AuthResp(null, null, user.getEmail(), "STUDENT");
     }
@@ -107,8 +104,6 @@ public class AuthService {
                 sessionRepository.save(s);
             }
         }
-
-        auditLogger.log("LOGIN", user.getEmail(), "User logged in");
 
         return generateLoginResponse(user, roleName, req.getDeviceInfo());
     }
@@ -162,8 +157,6 @@ public class AuthService {
 
         session.setActive(false);
         sessionRepository.save(session);
-
-        auditLogger.log("LOGOUT", session.getUserId().toString(), "Session ended");
     }
 
     // ---------------------- Refresh Token Rotation ----------------------
@@ -198,8 +191,6 @@ public class AuthService {
                 old.getUserId().toString(),
                 Map.of()
         );
-
-        auditLogger.log("REFRESH_TOKEN", old.getUserId().toString(), "Token rotated");
 
         return new AuthResp(newAccess, newRefresh, old.getUserId().toString(), null);
     }

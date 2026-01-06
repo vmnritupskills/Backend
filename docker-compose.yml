@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+  backend:
+    build: .
+    container_name: lms_backend
+    restart: always
+
+    env_file:
+      - .env
+
+    environment:
+      # ======================
+      # SERVER
+      # ======================
+      SERVER_PORT: 8084
+
+      # ======================
+      # DATABASE (AWS RDS)
+      # ======================
+      SPRING_DATASOURCE_URL: ${DB_URL}
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: 5
+      SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: 1
+      SPRING_DATASOURCE_HIKARI_MAX_LIFETIME: 60000
+      SPRING_DATASOURCE_HIKARI_IDLE_TIMEOUT: 30000
+      SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT: 30000
+
+      # ======================
+      # JWT
+      # ======================
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_ACCESS_TOKEN_EXPIRY: 900000
+      JWT_REFRESH_TOKEN_EXPIRY: 604800000
+
+      # ======================
+      # AWS S3
+      # ======================
+      AWS_REGION: ${AWS_REGION}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+
+    ports:
+      - "8084:8084"

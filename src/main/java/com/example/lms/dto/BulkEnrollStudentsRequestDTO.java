@@ -11,7 +11,7 @@ public record BulkEnrollStudentsRequestDTO(
         @NotNull(message = "institutionId is required")
         Long institutionId,
 
-        @NotBlank(message = "courseCode is required")
+        @NotNull(message = "courseCode is required")
         Long courseId,
 
         @NotEmpty(message = "studentIds list cannot be empty")

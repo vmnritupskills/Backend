@@ -11,7 +11,7 @@ public record EnrollStudentRequestDTO(
         @NotBlank(message = "studentId (regNo) is required")
         String studentId,
 
-        @NotBlank(message = "courseCode is required")
+        @NotNull(message = "courseCode is required")
         Long courseId
 ) {
 

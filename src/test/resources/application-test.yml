@@ -1,0 +1,34 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+  flyway:
+    enabled: false
+
+jwt:
+  enabled: true	
+  access-token:
+    expiry: 900
+  refresh-token:
+    expiry: 604800
+  keystore:
+    path: dummy
+    type: PKCS12
+    password: dummy
+    key-alias: dummy
+    key-password: dummy
+    enabled: false
+  
+aws:
+ region: dummy
+ s3:
+  bucket-name: dummy
+ access-key-id: dummy
+ secret-access-key: dummy

@@ -1,8 +1,7 @@
-package com.example.lms;
+package com.example.lms.controller;
 
 import com.example.lms.config.JwtUtil;
 import com.example.lms.config.SecurityConfig;
-import com.example.lms.controller.CourseController;
 import com.example.lms.dto.CreateCourseRequestDTO;
 import com.example.lms.entity.Course;
 import com.example.lms.exception.GlobalExceptionHandler;
@@ -11,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;

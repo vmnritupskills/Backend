@@ -1,11 +1,10 @@
-package com.example.lms;
+package com.example.lms.controller;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import com.example.lms.config.JwtUtil;
 import com.example.lms.config.SecurityConfig;
-import com.example.lms.controller.InstitutionController;
 import com.example.lms.dto.CreateInstitutionRequestDTO;
 import com.example.lms.dto.InstitutionResponseDTO;
 import com.example.lms.dto.UpdateInstitutionRequestDTO;

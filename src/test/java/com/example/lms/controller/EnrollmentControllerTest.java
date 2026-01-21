@@ -1,8 +1,7 @@
-package com.example.lms;
+package com.example.lms.controller;
 
 import com.example.lms.config.JwtUtil;
 import com.example.lms.config.SecurityConfig;
-import com.example.lms.controller.EnrollmentController;
 import com.example.lms.dto.BulkEnrollStudentsRequestDTO;
 import com.example.lms.dto.EnrollStudentRequestDTO;
 import com.example.lms.exception.GlobalExceptionHandler;

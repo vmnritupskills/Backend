@@ -1,10 +1,8 @@
-package com.example.lms;
+package com.example.lms.controller;
 
 import com.example.lms.config.JwtUtil;
 import com.example.lms.config.SecurityConfig;
-import com.example.lms.controller.ContentManagerController;
 import com.example.lms.dto.*;
-import com.example.lms.entity.ContentManager;
 import com.example.lms.exception.GlobalExceptionHandler;
 import com.example.lms.service.ContentManagerService;
 import com.fasterxml.jackson.databind.ObjectMapper;

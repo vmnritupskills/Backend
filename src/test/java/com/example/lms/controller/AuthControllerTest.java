@@ -1,8 +1,8 @@
-package com.example.lms;
+package com.example.lms.controller;
 
+import com.example.lms.TestJwtKeyConfig;
 import com.example.lms.config.JwtUtil;
 import com.example.lms.config.SecurityConfig;
-import com.example.lms.controller.AuthController;
 import com.example.lms.dto.LoginRequestDTO;
 import com.example.lms.dto.LoginResponseDTO;
 import com.example.lms.exception.GlobalExceptionHandler;

@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -230,5 +230,76 @@ class EnrollmentServiceTest {
         enrollmentService.bulkEnrollStudents(dto);
 
         verify(enrollmentRepository, times(1)).save(any(Enrollment.class));
+    }
+
+    @Test
+    void bulkEnrollStudents_fail_institution_not_found() {
+
+        BulkEnrollStudentsRequestDTO dto =
+                new BulkEnrollStudentsRequestDTO(
+                        1L,
+                        10L,
+                        List.of("STU001")
+                );
+
+        when(institutionRepository.findByIdAndDeletedAtIsNull(1L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> enrollmentService.bulkEnrollStudents(dto)
+        );
+    }
+
+    @Test
+    void bulkEnrollStudents_fail_course_not_found() {
+
+        BulkEnrollStudentsRequestDTO dto =
+                new BulkEnrollStudentsRequestDTO(
+                        1L,
+                        10L,
+                        List.of("STU001")
+                );
+
+        Institution institution = Institution.builder().id(1L).build();
+
+        when(institutionRepository.findByIdAndDeletedAtIsNull(1L))
+                .thenReturn(Optional.of(institution));
+
+        when(courseRepository.findByIdAndInstitution_IdAndDeletedAtIsNull(10L, 1L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> enrollmentService.bulkEnrollStudents(dto)
+        );
+    }
+
+    @Test
+    void bulkEnrollStudents_fail_student_not_found() {
+
+        BulkEnrollStudentsRequestDTO dto =
+                new BulkEnrollStudentsRequestDTO(
+                        1L,
+                        10L,
+                        List.of("STU001")
+                );
+
+        Institution institution = Institution.builder().id(1L).build();
+        Course course = Course.builder().id(10L).build();
+
+        when(institutionRepository.findByIdAndDeletedAtIsNull(1L))
+                .thenReturn(Optional.of(institution));
+
+        when(courseRepository.findByIdAndInstitution_IdAndDeletedAtIsNull(10L, 1L))
+                .thenReturn(Optional.of(course));
+
+        when(studentRepository.findByRegNoAndInstitution_Id("STU001", 1L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> enrollmentService.bulkEnrollStudents(dto)
+        );
     }
 }

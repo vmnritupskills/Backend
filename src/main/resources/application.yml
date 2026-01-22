@@ -1,0 +1,99 @@
+# ===============================
+# SERVER
+# ===============================
+server:
+  port: ${SERVER_PORT:8084}
+  tomcat:
+    accept-count: 1000
+    max-connections: 10000
+    threads:
+      max: 500
+
+# ===============================
+# DATASOURCE (AWS RDS - PostgreSQL)
+# ===============================
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  # ===============================
+  # JPA / HIBERNATE
+  # ===============================
+  jpa:
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  # ===============================
+  # FLYWAY (DB MIGRATIONS)
+  # ===============================
+  flyway:
+    enabled: false
+
+  # ===============================
+  # FILE UPLOAD
+  # ===============================
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  # ===============================
+  # VIRTUAL THREADS
+  # ===============================
+  threads:
+    virtual:
+      enabled: true
+
+# ===============================
+# SECURITY / JWT
+# ===============================
+jwt:
+  secret: ${JWT_SECRET}
+  access-token:
+    expiry: 900000
+  refresh-token:
+    expiry: 604800000
+
+# ===============================
+# LOGGING
+# ===============================
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
+
+# ===============================
+# AWS S3 CONFIGURATION
+# ===============================
+aws:
+  region: ${AWS_REGION}
+  s3:
+    bucket-name: ${AWS_S3_BUCKET}
+  access-key-id: ${AWS_ACCESS_KEY_ID}
+  secret-access-key: ${AWS_SECRET_ACCESS_KEY}
+
+# ===============================
+# ACTUATOR / OBSERVABILITY
+# ===============================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus

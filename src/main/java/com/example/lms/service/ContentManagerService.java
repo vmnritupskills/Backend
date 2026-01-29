@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.example.lms.dto.ContentManagerStatsResponseDTO;
+
 
 import java.util.List;
 
@@ -22,6 +24,7 @@ public class ContentManagerService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+
 
     /* ================= CREATE ================= */
     @Transactional
@@ -160,6 +163,18 @@ public class ContentManagerService {
                 .map(InstitutionCourseManager::getCourse)
                 .toList();
     }
+    /* ================= ADMIN STATS ================= */
+    public ContentManagerStatsResponseDTO getContentManagerStats() {
+
+        long total = contentManagerRepository.count();
+        long active = contentManagerRepository.countActiveContentManagers();
+
+        return new ContentManagerStatsResponseDTO(
+                total,
+                active
+        );
+    }
+
 
     /* ================= REPLACE COURSES ================= */
     @Transactional

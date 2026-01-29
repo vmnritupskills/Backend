@@ -71,7 +71,7 @@ public class InstitutionController {
             @ApiResponse(responseCode = "404", description = "Institution not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PreAuthorize("hasAnyRole('ADMIN','INSTITUTION')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<InstitutionResponseDTO> getInstitutionById(
             @PathVariable Long id) {
@@ -91,7 +91,7 @@ public class InstitutionController {
             @ApiResponse(responseCode = "404", description = "Institution not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PreAuthorize("hasAnyRole('ADMIN','INSTITUTION')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<String> updateInstitution(
             @PathVariable Long id,

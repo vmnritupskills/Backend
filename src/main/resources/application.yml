@@ -1,27 +1,13 @@
-# ===============================
-# SERVER
-# ===============================
 server:
-  port: ${SERVER_PORT:8084}
-  tomcat:
-    accept-count: 1000
-    max-connections: 10000
-    threads:
-      max: 500
+  port: ${SERVER_PORT:8080}
 
-# ===============================
-# DATASOURCE (AWS RDS - PostgreSQL)
-# ===============================
 spring:
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
-  # ===============================
-  # JPA / HIBERNATE
-  # ===============================
   jpa:
     open-in-view: false
     show-sql: true
@@ -32,61 +18,37 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
-  # ===============================
-  # FLYWAY
-  # ===============================
   flyway:
     enabled: false
 
-  # ===============================
-  # FILE UPLOAD
-  # ===============================
   servlet:
     multipart:
       enabled: true
       max-file-size: 10MB
       max-request-size: 10MB
 
-  # ===============================
-  # VIRTUAL THREADS
-  # ===============================
   threads:
     virtual:
       enabled: true
 
 # ===============================
-# SECURITY / JWT (RSA – FINAL)
+# JWT (RSA)
 # ===============================
 jwt:
   keystore:
-    path: classpath:jwt-keystore.p12
-    type: PKCS12
+    path: ${JWT_KEYSTORE_PATH}
+    type: ${JWT_KEYSTORE_TYPE}
     password: ${JWT_KEYSTORE_PASSWORD}
-    key-alias: ${JWT_KEY_ALIAS}
-    key-password: ${JWT_KEY_PASSWORD}
+    key-alias: ${JWT_KEYSTORE_KEY_ALIAS}
+    key-password: ${JWT_KEYSTORE_KEY_PASSWORD}
 
   access-token:
-    expiry: 900000        # 15 minutes
+    expiry: ${JWT_ACCESS_TOKEN_EXPIRY}
   refresh-token:
-    expiry: 604800000     # 7 days
+    expiry: ${JWT_REFRESH_TOKEN_EXPIRY}
 
 # ===============================
-# LOGGING
-# ===============================
-logging:
-  level:
-    org:
-      springframework:
-        security: DEBUG
-      hibernate:
-        SQL: DEBUG
-        type:
-          descriptor:
-            sql:
-              BasicBinder: TRACE
-
-# ===============================
-# AWS S3 CONFIGURATION
+# AWS S3
 # ===============================
 aws:
   region: ${AWS_REGION}
@@ -94,6 +56,14 @@ aws:
     bucket-name: ${AWS_S3_BUCKET}
   access-key-id: ${AWS_ACCESS_KEY_ID}
   secret-access-key: ${AWS_SECRET_ACCESS_KEY}
+
+# ===============================
+# LOGGING
+# ===============================
+logging:
+  level:
+    org.springframework.security: INFO
+    org.hibernate.SQL: DEBUG
 
 # ===============================
 # ACTUATOR

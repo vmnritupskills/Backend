@@ -25,17 +25,17 @@ public class EnrollmentController {
     /* ================= SINGLE ENROLL ================= */
     @Operation(
             summary = "Enroll a student",
-            description = "Enroll a single student into a course under an institution"
+            description = "Enroll a single student into a course under an ADMIN"
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Student enrolled successfully"),
             @ApiResponse(responseCode = "400", description = "Validation error"),
-            @ApiResponse(responseCode = "403", description = "Only Institution allowed"),
+            @ApiResponse(responseCode = "403", description = "Only ADMIN allowed"),
             @ApiResponse(responseCode = "404", description = "Student or Course not found"),
             @ApiResponse(responseCode = "409", description = "Student already enrolled"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PreAuthorize("hasRole('INSTITUTION')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<String> enrollStudent(
             @RequestBody @Valid EnrollStudentRequestDTO dto) {
@@ -47,16 +47,16 @@ public class EnrollmentController {
     /* ================= BULK ENROLL ================= */
     @Operation(
             summary = "Bulk enroll students",
-            description = "Enroll multiple students into a course under an institution"
+            description = "Enroll multiple students into a course under an ADMIN"
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Students enrolled successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid student list"),
-            @ApiResponse(responseCode = "403", description = "Only Institution allowed"),
+            @ApiResponse(responseCode = "403", description = "Only ADMIN allowed"),
             @ApiResponse(responseCode = "404", description = "Student or Course not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PreAuthorize("hasRole('INSTITUTION')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/bulk")
     public ResponseEntity<String> bulkEnrollStudents(
             @RequestBody @Valid BulkEnrollStudentsRequestDTO dto) {

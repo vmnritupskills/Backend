@@ -4,6 +4,7 @@ import com.example.lms.dto.*;
 import com.example.lms.entity.ContentManager;
 import com.example.lms.entity.Course;
 import com.example.lms.service.ContentManagerService;
+import com.example.lms.dto.ContentManagerStatsResponseDTO;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +35,7 @@ public class ContentManagerController {
             @ApiResponse(responseCode = "409", description = "Email already exists"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PreAuthorize("hasRole('INSTITUTION')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<String> createContentManager(
             @RequestBody @Valid CreateContentManagerRequestDTO dto) {
@@ -50,7 +51,7 @@ public class ContentManagerController {
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PreAuthorize("hasRole('INSTITUTION')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<ContentManagerResponseDTO>> getAllContentManagers(
             @RequestParam Long institutionId) {
@@ -68,7 +69,7 @@ public class ContentManagerController {
             @ApiResponse(responseCode = "404", description = "Content Manager not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PreAuthorize("hasAnyRole('INSTITUTION','CONTENT_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','CONTENT_MANAGER')") // for student also
     @GetMapping("/{id}")
     public ResponseEntity<ContentManager> getContentManager(
             @PathVariable Long id,
@@ -87,7 +88,7 @@ public class ContentManagerController {
             @ApiResponse(responseCode = "404", description = "Content Manager not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PreAuthorize("hasAnyRole('INSTITUTION','CONTENT_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','CONTENT_MANAGER')")
     @PutMapping("/{id}")
     public ResponseEntity<String> updateContentManager(
             @PathVariable Long id,
@@ -105,7 +106,7 @@ public class ContentManagerController {
             @ApiResponse(responseCode = "404", description = "Content Manager not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PreAuthorize("hasRole('INSTITUTION')")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteContentManager(
             @PathVariable Long id,
@@ -120,12 +121,12 @@ public class ContentManagerController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Course assigned successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid course"),
-            @ApiResponse(responseCode = "403", description = "Only Institution allowed"),
+            @ApiResponse(responseCode = "403", description = "Only ADMIN allowed"),
             @ApiResponse(responseCode = "404", description = "Course or Content Manager not found"),
             @ApiResponse(responseCode = "409", description = "Course already assigned"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PreAuthorize("hasRole('INSTITUTION')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{contentManagerId}/courses/assign")
     public ResponseEntity<String> assignCourse(
             @PathVariable Long contentManagerId,
@@ -143,11 +144,11 @@ public class ContentManagerController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Courses assigned successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid course list"),
-            @ApiResponse(responseCode = "403", description = "Only Institution allowed"),
+            @ApiResponse(responseCode = "403", description = "Only ADMIN allowed"),
             @ApiResponse(responseCode = "404", description = "Content Manager or Course not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PreAuthorize("hasRole('INSTITUTION')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{contentManagerId}/courses/assign/bulk")
     public ResponseEntity<String> bulkAssignCourses(
             @PathVariable Long contentManagerId,
@@ -169,7 +170,7 @@ public class ContentManagerController {
             @ApiResponse(responseCode = "404", description = "Assignment not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PreAuthorize("hasRole('INSTITUTION')")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{contentManagerId}/courses/{courseId}")
     public ResponseEntity<String> unassignCourse(
             @PathVariable Long contentManagerId,
@@ -190,7 +191,7 @@ public class ContentManagerController {
             @ApiResponse(responseCode = "404", description = "Content Manager not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PreAuthorize("hasAnyRole('INSTITUTION','CONTENT_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','CONTENT_MANAGER')")
     @GetMapping("/{contentManagerId}/courses")
     public ResponseEntity<List<Course>> getAssignedCourses(
             @PathVariable Long contentManagerId) {
@@ -209,7 +210,7 @@ public class ContentManagerController {
             @ApiResponse(responseCode = "404", description = "Content Manager or Course not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PreAuthorize("hasRole('INSTITUTION')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{contentManagerId}/courses")
     public ResponseEntity<String> updateAssignedCourses(
             @PathVariable Long contentManagerId,
@@ -221,4 +222,21 @@ public class ContentManagerController {
         );
         return ResponseEntity.ok("Assigned courses updated successfully");
     }
+
+    /* ================= ADMIN STATS ================= */
+    @Operation(summary = "Get Content Manager statistics (Admin)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Statistics fetched successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/stats")
+    public ResponseEntity<ContentManagerStatsResponseDTO> getContentManagerStats() {
+
+        return ResponseEntity.ok(
+                contentManagerService.getContentManagerStats()
+        );
+    }
+
 }

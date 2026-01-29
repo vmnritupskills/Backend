@@ -16,9 +16,28 @@ public class CorsConfig {
 
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("http://localhost:8080"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        config.setAllowedOrigins(List.of(
+                "http://localhost:8080",          // local React
+                "http://65.1.92.147:8081"         // deployed frontend
+        ));
+
+
+        config.setAllowedMethods(List.of(
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE",
+                "OPTIONS"
+        ));
+
+
         config.setAllowedHeaders(List.of("*"));
+
+
+        config.setExposedHeaders(List.of("Authorization"));
+
+
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source =

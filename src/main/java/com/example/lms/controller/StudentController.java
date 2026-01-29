@@ -24,17 +24,17 @@ public class StudentController {
     /* ================= CREATE STUDENT ================= */
     @Operation(
             summary = "Create Student",
-            description = "Institution creates a student under its account"
+            description = "ADMIN creates a student under its account"
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Student created successfully"),
             @ApiResponse(responseCode = "400", description = "Validation error / Email or RegNo exists"),
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
-            @ApiResponse(responseCode = "403", description = "Only Institution allowed"),
-            @ApiResponse(responseCode = "404", description = "Institution not found"),
+            @ApiResponse(responseCode = "403", description = "Only ADMIN allowed"),
+            @ApiResponse(responseCode = "404", description = "ADMIN not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PreAuthorize("hasRole('INSTITUTION')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<String> createStudent(
             @RequestBody @Valid CreateStudentRequestDTO dto) {

@@ -28,16 +28,16 @@ public class CourseController {
     /* ================= CREATE ================= */
     @Operation(
             summary = "Create Course",
-            description = "Institution creates a new course"
+            description = "ADMIN creates a new course"
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Course created successfully"),
             @ApiResponse(responseCode = "400", description = "Validation error / Invalid input"),
-            @ApiResponse(responseCode = "403", description = "Only Institution allowed"),
+            @ApiResponse(responseCode = "403", description = "Only ADMIN allowed"),
             @ApiResponse(responseCode = "409", description = "Course code already exists"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PreAuthorize("hasRole('INSTITUTION')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> createCourse(
             @ModelAttribute @Valid CreateCourseRequestDTO dto,
@@ -50,14 +50,14 @@ public class CourseController {
     /* ================= GET ALL ================= */
     @Operation(
             summary = "Get all Courses",
-            description = "Fetch all courses under an institution"
+            description = "Fetch all courses under an ADMIN"
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Courses fetched successfully"),
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PreAuthorize("hasRole('INSTITUTION')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<Course>> getAllCourses(
             @RequestParam Long institutionId) {
@@ -78,7 +78,7 @@ public class CourseController {
             @ApiResponse(responseCode = "404", description = "Course not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PreAuthorize("hasAnyRole('INSTITUTION','CONTENT_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','CONTENT_MANAGER')")
     @GetMapping("/{courseId}")
     public ResponseEntity<Course> getCourseById(
             @PathVariable Long courseId,
@@ -97,11 +97,11 @@ public class CourseController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Course updated successfully"),
             @ApiResponse(responseCode = "400", description = "Validation error"),
-            @ApiResponse(responseCode = "403", description = "Only Institution allowed"),
+            @ApiResponse(responseCode = "403", description = "Only ADMIN allowed"),
             @ApiResponse(responseCode = "404", description = "Course not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PreAuthorize("hasRole('INSTITUTION')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(
             value = "/{courseId}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
@@ -122,11 +122,11 @@ public class CourseController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Course deleted successfully"),
-            @ApiResponse(responseCode = "403", description = "Only Institution allowed"),
+            @ApiResponse(responseCode = "403", description = "Only ADMIN allowed"),
             @ApiResponse(responseCode = "404", description = "Course not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PreAuthorize("hasRole('INSTITUTION')")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{courseId}")
     public ResponseEntity<String> deleteCourse(
             @PathVariable Long courseId,

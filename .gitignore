@@ -3,8 +3,12 @@ target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+
 target/
 
+# Secrets
+.env
+jwt-keystore.p12
 
 ### STS ###
 .apt_generated
@@ -20,6 +24,7 @@ target/
 *.iws
 *.iml
 *.ipr
+
 
 ### NetBeans ###
 /nbproject/private/

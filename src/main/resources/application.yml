@@ -33,7 +33,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
   # ===============================
-  # FLYWAY (DB MIGRATIONS)
+  # FLYWAY
   # ===============================
   flyway:
     enabled: false
@@ -55,14 +55,20 @@ spring:
       enabled: true
 
 # ===============================
-# SECURITY / JWT
+# SECURITY / JWT (RSA – FINAL)
 # ===============================
 jwt:
-  secret: ${JWT_SECRET}
+  keystore:
+    path: classpath:jwt-keystore.p12
+    type: PKCS12
+    password: ${JWT_KEYSTORE_PASSWORD}
+    key-alias: ${JWT_KEY_ALIAS}
+    key-password: ${JWT_KEY_PASSWORD}
+
   access-token:
-    expiry: 900000
+    expiry: 900000        # 15 minutes
   refresh-token:
-    expiry: 604800000
+    expiry: 604800000     # 7 days
 
 # ===============================
 # LOGGING
@@ -90,7 +96,7 @@ aws:
   secret-access-key: ${AWS_SECRET_ACCESS_KEY}
 
 # ===============================
-# ACTUATOR / OBSERVABILITY
+# ACTUATOR
 # ===============================
 management:
   endpoints:

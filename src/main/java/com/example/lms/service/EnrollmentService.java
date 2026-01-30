@@ -19,6 +19,7 @@ public class EnrollmentService {
     private final CourseRepository courseRepository;
 
     /* ================= SINGLE ENROLL ================= */
+
     @Transactional
     public void enrollStudent(EnrollStudentRequestDTO dto) {
 
@@ -40,15 +41,15 @@ public class EnrollmentService {
                 .orElseThrow(() ->
                         new IllegalArgumentException("Course not found in this institution"));
 
-        if (enrollmentRepository.existsByStudentIdAndCourse_Id(
-                student.getRegNo(),
+        if (enrollmentRepository.existsByStudent_IdAndCourse_Id(
+                student.getId(),
                 course.getId())) {
             throw new IllegalStateException("Student already enrolled in this course");
         }
 
         enrollmentRepository.save(
                 Enrollment.builder()
-                        .studentId(student.getRegNo())
+                        .student(student)
                         .course(course)
                         .isEnrolled(true)
                         .build()
@@ -56,6 +57,7 @@ public class EnrollmentService {
     }
 
     /* ================= BULK ENROLL ================= */
+
     @Transactional
     public void bulkEnrollStudents(BulkEnrollStudentsRequestDTO dto) {
 
@@ -79,15 +81,15 @@ public class EnrollmentService {
                     .orElseThrow(() ->
                             new IllegalArgumentException("Student not found: " + regNo));
 
-            if (enrollmentRepository.existsByStudentIdAndCourse_Id(
-                    student.getRegNo(),
+            if (enrollmentRepository.existsByStudent_IdAndCourse_Id(
+                    student.getId(),
                     course.getId())) {
                 continue;
             }
 
             enrollmentRepository.save(
                     Enrollment.builder()
-                            .studentId(student.getRegNo())
+                            .student(student)
                             .course(course)
                             .isEnrolled(true)
                             .build()

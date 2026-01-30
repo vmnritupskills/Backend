@@ -1,0 +1,12 @@
+package com.example.lms.repository;
+
+import com.example.lms.entity.CourseTopic;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface CourseTopicRepository extends JpaRepository<CourseTopic, Long> {
+    List<CourseTopic> findByCourseId(Long courseId);
+
+}
+

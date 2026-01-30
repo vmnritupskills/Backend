@@ -48,4 +48,26 @@ public class S3Service {
             throw new RuntimeException("Failed to upload syllabus to S3", e);
         }
     }
+    public String uploadFile(MultipartFile file, String folder) {
+        try {
+            String key = folder + "/" +
+                    UUID.randomUUID() + "-" +
+                    file.getOriginalFilename();
+
+            s3Client.putObject(
+                    PutObjectRequest.builder()
+                            .bucket(bucketName)
+                            .key(key)
+                            .contentType(file.getContentType())
+                            .build(),
+                    RequestBody.fromBytes(file.getBytes())
+            );
+
+            return "https://" + bucketName + ".s3.amazonaws.com/" + key;
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to upload file to S3", e);
+        }
+    }
+
 }

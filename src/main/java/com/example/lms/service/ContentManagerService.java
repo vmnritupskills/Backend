@@ -24,6 +24,10 @@ public class ContentManagerService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EnrollmentRepository enrollmentRepository;
+
+
+
 
 
     /* ================= CREATE ================= */
@@ -116,17 +120,21 @@ public class ContentManagerService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new IllegalArgumentException("Course not found"));
 
-        if (institutionCourseManagerRepository.existsByCourseIdAndContentManagerId(courseId, cmId)) {
+        if (institutionCourseManagerRepository
+                .existsByCourseIdAndContentManagerId(courseId, cmId)) {
             throw new IllegalStateException("Course already assigned");
         }
 
-        institutionCourseManagerRepository.save(
+        InstitutionCourseManager mapping =
                 InstitutionCourseManager.builder()
+                        .institution(cm.getInstitution()) // ✅ REQUIRED
                         .course(course)
                         .contentManager(cm)
-                        .build()
-        );
+                        .build();
+
+        institutionCourseManagerRepository.save(mapping);
     }
+
 
     /* ================= BULK ASSIGN ================= */
     @Transactional
@@ -174,6 +182,31 @@ public class ContentManagerService {
                 active
         );
     }
+    /* ================= CONTENT MANAGER STUDENT COUNT ================= */
+    public ContentManagerStudentStatsResponseDTO getStudentCountUnderContentManager(Long cmId) {
+
+        // Validate CM exists
+        contentManagerRepository.findById(cmId)
+                .orElseThrow(() -> new IllegalArgumentException("Content Manager not found"));
+
+        long totalStudents =
+                enrollmentRepository.countStudentsUnderContentManager(cmId);
+
+        return new ContentManagerStudentStatsResponseDTO(
+                cmId,
+                totalStudents
+        );
+    }
+    /* ================= STUDENTS UNDER CONTENT MANAGER ================= */
+    public List<EnrolledStudentResponseDTO>
+    getStudentsUnderContentManager(Long cmId) {
+
+        contentManagerRepository.findById(cmId)
+                .orElseThrow(() -> new IllegalArgumentException("Content Manager not found"));
+
+        return enrollmentRepository.findStudentsUnderContentManager(cmId);
+    }
+
 
 
     /* ================= REPLACE COURSES ================= */

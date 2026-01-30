@@ -3,6 +3,7 @@ package com.example.lms.controller;
 import com.example.lms.dto.*;
 import com.example.lms.entity.ContentManager;
 import com.example.lms.entity.Course;
+import com.example.lms.entity.Student;
 import com.example.lms.service.ContentManagerService;
 import com.example.lms.dto.ContentManagerStatsResponseDTO;
 
@@ -238,5 +239,47 @@ public class ContentManagerController {
                 contentManagerService.getContentManagerStats()
         );
     }
+    /* ================= CONTENT MANAGER STUDENT STATS ================= */
+    @Operation(summary = "Get total students under a Content Manager")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Student count fetched successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Content Manager not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PreAuthorize("hasAnyRole('ADMIN','CONTENT_MANAGER')")
+    @GetMapping("/{contentManagerId}/students/count")
+    public ResponseEntity<ContentManagerStudentStatsResponseDTO>
+    getStudentCountUnderContentManager(
+            @PathVariable Long contentManagerId) {
+
+        return ResponseEntity.ok(
+                contentManagerService.getStudentCountUnderContentManager(contentManagerId)
+        );
+    }
+    /* ================= STUDENT DETAILS ================= */
+    @Operation(summary = "Get enrolled students under Content Manager")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Students fetched successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Content Manager not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PreAuthorize("hasAnyRole('ADMIN','CONTENT_MANAGER')")
+    @GetMapping("/{contentManagerId}/students")
+    public ResponseEntity<List<EnrolledStudentResponseDTO>>
+    getStudentsUnderContentManager(
+            @PathVariable Long contentManagerId) {
+
+        return ResponseEntity.ok(
+                contentManagerService.getStudentsUnderContentManager(contentManagerId)
+        );
+    }
+
+
+
+
+
+
 
 }

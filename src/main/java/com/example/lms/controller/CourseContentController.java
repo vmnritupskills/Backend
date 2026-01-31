@@ -105,5 +105,16 @@ public class CourseContentController {
                 service.getCourseContentStructure(cmId, courseId)
         );
     }
+
+    @GetMapping("/course/{courseId}/completion")
+    public ResponseEntity<CourseCompletionStatsDTO> getCourseCompletionStats(
+            @RequestParam Long cmId,
+            @PathVariable Long courseId
+    ) {
+        return ResponseEntity.ok(
+                service.getAverageCourseCompletion(cmId, courseId)
+        );
+    }
+
 }
 

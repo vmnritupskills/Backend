@@ -53,4 +53,6 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
             @Param("contentManagerId") Long contentManagerId
     );
 
+    List<Enrollment> findByCourseIdAndIsEnrolledTrue(Long courseId);
+
 }

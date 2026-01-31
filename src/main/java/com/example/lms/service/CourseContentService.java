@@ -19,7 +19,11 @@ public class CourseContentService {
     private final CourseTopicRepository topicRepo;
     private final CourseSubtopicRepository subtopicRepo;
     private final InstitutionCourseManagerRepository icmRepo;
+    private final QuizRepository quizRepo;
     private final S3Service s3Service;
+    private final EnrollmentRepository enrollmentRepository;
+    private final QuizAttemptRepository attemptRepo;
+
 
     /* ================= TOPIC ================= */
 
@@ -78,7 +82,6 @@ public class CourseContentService {
             MultipartFile file
     ) {
 
-        // ✅ FIXED: use getters (DTO is a CLASS, not record)
         CourseTopic topic = topicRepo.findById(dto.getTopicId())
                 .orElseThrow(() -> new IllegalArgumentException("Topic not found"));
 
@@ -90,7 +93,6 @@ public class CourseContentService {
         String contentUrl = null;
         String textContent = null;
 
-        // 📁 FILE CONTENT
         if (dto.getContentType() == ContentType.PDF ||
                 dto.getContentType() == ContentType.VIDEO) {
 
@@ -101,11 +103,7 @@ public class CourseContentService {
             contentUrl = s3Service.uploadFile(file, "course-content");
         }
 
-        // 📝 TEXT CONTENT
         if (dto.getContentType() == ContentType.TEXT) {
-            if (dto.getTextContent() == null || dto.getTextContent().isBlank()) {
-                throw new IllegalArgumentException("Text content required");
-            }
             textContent = dto.getTextContent();
         }
 
@@ -160,7 +158,7 @@ public class CourseContentService {
         subtopicRepo.deleteById(subtopicId);
     }
 
-    /* ================= COURSE TREE ================= */
+    /* ================= COURSE STRUCTURE ================= */
 
     @Transactional(readOnly = true)
     public CourseContentResponseDTO getCourseContentStructure(
@@ -180,6 +178,8 @@ public class CourseContentService {
                                 topic.getId(),
                                 topic.getTitle(),
                                 topic.getDurationMinutes(),
+
+                                // SUBTOPICS
                                 subtopicRepo.findByTopicId(topic.getId())
                                         .stream()
                                         .map(sub -> new SubtopicResponseDTO(
@@ -190,10 +190,83 @@ public class CourseContentService {
                                                 sub.getTextContent(),
                                                 sub.getDurationMinutes()
                                         ))
+                                        .toList(),
+
+                                // QUIZZES
+                                quizRepo.findByTopicId(topic.getId())
+                                        .stream()
+                                        .map(q -> new QuizStatusDTO(
+                                                q.getId(),
+                                                q.getTitle(),
+                                                q.getIsActive(),
+                                                q.getPassMarks()
+                                        ))
                                         .toList()
                         ))
                         .toList();
 
         return new CourseContentResponseDTO(courseId, topicDtos);
     }
+
+    @Transactional(readOnly = true)
+    public CourseCompletionStatsDTO getAverageCourseCompletion(Long cmId, Long courseId) {
+
+        // CM authorization
+        if (!icmRepo.existsByCourseIdAndContentManagerId(courseId, cmId)) {
+            throw new SecurityException("Access denied");
+        }
+
+        List<CourseTopic> topics = topicRepo.findByCourseId(courseId);
+        int totalTopics = topics.size();
+
+        if (totalTopics == 0) {
+            return new CourseCompletionStatsDTO(courseId, 0.0, 0);
+        }
+
+        List<Enrollment> enrollments =
+                enrollmentRepository.findByCourseIdAndIsEnrolledTrue(courseId);
+
+        if (enrollments.isEmpty()) {
+            return new CourseCompletionStatsDTO(courseId, 0.0, 0);
+        }
+
+        double totalCompletionSum = 0;
+
+        for (Enrollment enrollment : enrollments) {
+            Long studentId = enrollment.getStudent().getId();
+            int completedTopics = 0;
+
+            for (CourseTopic topic : topics) {
+                List<Quiz> quizzes = quizRepo.findByTopicId(topic.getId());
+
+                if (quizzes.isEmpty()) continue;
+
+                Quiz quiz = quizzes.get(0); // one quiz per topic (your design)
+
+                boolean passed =
+                        attemptRepo.existsByQuizIdAndStudentIdAndPassedTrue(
+                                quiz.getId(), studentId
+                        );
+
+                if (passed) {
+                    completedTopics++;
+                }
+            }
+
+            double studentCompletion =
+                    ((double) completedTopics / totalTopics) * 100;
+
+            totalCompletionSum += studentCompletion;
+        }
+
+        double averageCompletion =
+                totalCompletionSum / enrollments.size();
+
+        return new CourseCompletionStatsDTO(
+                courseId,
+                Math.round(averageCompletion * 100.0) / 100.0, // 2 decimals
+                enrollments.size()
+        );
+    }
+
 }

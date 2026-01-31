@@ -1,6 +1,7 @@
 package com.example.lms.dto;
 
 public record CreateQuizQuestionDTO(
+        Long quizId,
         String question,
         String optionA,
         String optionB,
@@ -8,4 +9,6 @@ public record CreateQuizQuestionDTO(
         String optionD,
         String correctAnswer
 ) {}
+
+
 

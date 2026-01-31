@@ -35,5 +35,7 @@ public interface InstitutionCourseManagerRepository
             Long contentManagerId
     );
 
+    List<InstitutionCourseManager> findByContentManager_Id(Long cmId);
+
 
 }

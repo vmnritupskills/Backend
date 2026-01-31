@@ -3,8 +3,9 @@ package com.example.lms.dto;
 import java.util.List;
 
 public record TopicWithSubtopicsDTO(
-        Long topicId,
+        Long id,
         String title,
         Integer durationMinutes,
-        List<SubtopicResponseDTO> subtopics
+        List<SubtopicResponseDTO> subtopics,
+        List<QuizStatusDTO> quizzes
 ) {}

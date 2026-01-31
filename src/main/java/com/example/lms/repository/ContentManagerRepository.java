@@ -24,4 +24,6 @@ public interface ContentManagerRepository extends JpaRepository<ContentManager, 
         WHERE cm.user.isActive = true
     """)
     long countActiveContentManagers();
+
+    Optional<ContentManager> findByUser_Id(Long userId);
 }

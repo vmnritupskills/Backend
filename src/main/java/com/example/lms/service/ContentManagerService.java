@@ -3,13 +3,10 @@ package com.example.lms.service;
 import com.example.lms.dto.*;
 import com.example.lms.entity.*;
 import com.example.lms.repository.*;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.example.lms.dto.ContentManagerStatsResponseDTO;
-
 
 import java.util.List;
 
@@ -26,11 +23,17 @@ public class ContentManagerService {
     private final PasswordEncoder passwordEncoder;
     private final EnrollmentRepository enrollmentRepository;
 
-
-
-
+    /* =========================================================
+       INTERNAL ENTITY FETCH (PRIVATE – NO API EXPOSURE)
+       ========================================================= */
+    private ContentManager getContentManagerEntity(Long cmId, Long institutionId) {
+        return contentManagerRepository
+                .findByIdAndInstitutionId(cmId, institutionId)
+                .orElseThrow(() -> new IllegalArgumentException("Content Manager not found"));
+    }
 
     /* ================= CREATE ================= */
+
     @Transactional
     public void createContentManager(CreateContentManagerRequestDTO dto, Long institutionId) {
 
@@ -61,13 +64,24 @@ public class ContentManagerService {
         contentManagerRepository.save(cm);
     }
 
-    /* ================= GET ================= */
-    public ContentManager getContentManager(Long cmId, Long institutionId) {
+    /* ================= GET BY ID (DTO) ================= */
 
-        return contentManagerRepository
-                .findByIdAndInstitutionId(cmId, institutionId)
-                .orElseThrow(() -> new IllegalArgumentException("Content Manager not found"));
+    public ContentManagerDetailResponseDTO getContentManager(Long cmId, Long institutionId) {
+
+        ContentManager cm = getContentManagerEntity(cmId, institutionId);
+
+        return new ContentManagerDetailResponseDTO(
+                cm.getId(),
+                cm.getName(),
+                cm.getEmail(),
+                cm.getDepartment(),
+                cm.getInstitution().getId(),
+                cm.getUser().getId(),
+                cm.getUser().getIsActive()
+        );
     }
+
+    /* ================= GET ALL ================= */
 
     public List<ContentManagerResponseDTO> getAllContentManagers(Long institutionId) {
 
@@ -85,6 +99,7 @@ public class ContentManagerService {
     }
 
     /* ================= UPDATE ================= */
+
     @Transactional
     public void updateContentManager(Long cmId, UpdateContentManagerRequestDTO dto) {
 
@@ -100,17 +115,19 @@ public class ContentManagerService {
     }
 
     /* ================= DELETE ================= */
+
     @Transactional
     public void deleteContentManager(Long cmId, Long institutionId) {
 
-        ContentManager cm = getContentManager(cmId, institutionId);
+        ContentManager cm = getContentManagerEntity(cmId, institutionId);
 
-        institutionCourseManagerRepository.deleteByContentManagerId(cmId);
+        institutionCourseManagerRepository.deleteByContentManager_Id(cmId);
         userRepository.delete(cm.getUser());
         contentManagerRepository.delete(cm);
     }
 
     /* ================= ASSIGN COURSE ================= */
+
     @Transactional
     public void assignCourseToContentManager(Long courseId, Long cmId) {
 
@@ -121,13 +138,13 @@ public class ContentManagerService {
                 .orElseThrow(() -> new IllegalArgumentException("Course not found"));
 
         if (institutionCourseManagerRepository
-                .existsByCourseIdAndContentManagerId(courseId, cmId)) {
+                .existsByCourse_IdAndContentManager_Id(courseId, cmId)) {
             throw new IllegalStateException("Course already assigned");
         }
 
         InstitutionCourseManager mapping =
                 InstitutionCourseManager.builder()
-                        .institution(cm.getInstitution()) // ✅ REQUIRED
+                        .institution(cm.getInstitution())
                         .course(course)
                         .contentManager(cm)
                         .build();
@@ -135,69 +152,71 @@ public class ContentManagerService {
         institutionCourseManagerRepository.save(mapping);
     }
 
-
     /* ================= BULK ASSIGN ================= */
+
     @Transactional
     public void bulkAssignCoursesToContentManager(
             List<Long> courseIds,
             Long cmId,
-            Long institutionId) {
-
-        ContentManager cm = getContentManager(cmId, institutionId);
+            Long institutionId
+    ) {
+        getContentManagerEntity(cmId, institutionId);
 
         for (Long courseId : courseIds) {
-            assignCourseToContentManager(courseId, cm.getId());
+            assignCourseToContentManager(courseId, cmId);
         }
     }
 
     /* ================= UNASSIGN ================= */
+
     @Transactional
     public void unassignCourseFromContentManager(Long courseId, Long cmId) {
 
         InstitutionCourseManager mapping =
                 institutionCourseManagerRepository
-                        .findByCourseIdAndContentManagerId(courseId, cmId)
+                        .findByCourse_IdAndContentManager_Id(courseId, cmId)
                         .orElseThrow(() -> new IllegalArgumentException("Assignment not found"));
 
         institutionCourseManagerRepository.delete(mapping);
     }
 
     /* ================= GET ASSIGNED COURSES ================= */
+
     public List<Course> getCoursesAssignedToContentManager(Long cmId) {
 
         return institutionCourseManagerRepository
-                .findByContentManagerId(cmId)
+                .findByContentManager_Id(cmId)
                 .stream()
                 .map(InstitutionCourseManager::getCourse)
                 .toList();
     }
+
     /* ================= ADMIN STATS ================= */
+
     public ContentManagerStatsResponseDTO getContentManagerStats() {
 
         long total = contentManagerRepository.count();
         long active = contentManagerRepository.countActiveContentManagers();
 
-        return new ContentManagerStatsResponseDTO(
-                total,
-                active
-        );
+        return new ContentManagerStatsResponseDTO(total, active);
     }
-    /* ================= CONTENT MANAGER STUDENT COUNT ================= */
-    public ContentManagerStudentStatsResponseDTO getStudentCountUnderContentManager(Long cmId) {
 
-        // Validate CM exists
+    /* ================= STUDENT COUNT ================= */
+
+    public ContentManagerStudentStatsResponseDTO
+    getStudentCountUnderContentManager(Long cmId) {
+
         contentManagerRepository.findById(cmId)
                 .orElseThrow(() -> new IllegalArgumentException("Content Manager not found"));
 
         long totalStudents =
                 enrollmentRepository.countStudentsUnderContentManager(cmId);
 
-        return new ContentManagerStudentStatsResponseDTO(
-                cmId,
-                totalStudents
-        );
+        return new ContentManagerStudentStatsResponseDTO(cmId, totalStudents);
     }
-    /* ================= STUDENTS UNDER CONTENT MANAGER ================= */
+
+    /* ================= STUDENT LIST ================= */
+
     public List<EnrolledStudentResponseDTO>
     getStudentsUnderContentManager(Long cmId) {
 
@@ -207,13 +226,25 @@ public class ContentManagerService {
         return enrollmentRepository.findStudentsUnderContentManager(cmId);
     }
 
+    @Transactional
+    public void updatePassword(Long cmId, String newPassword) {
+
+        ContentManager cm = contentManagerRepository.findById(cmId)
+                .orElseThrow(() -> new IllegalArgumentException("Content Manager not found"));
+
+        User user = cm.getUser();
+        user.setPassword(passwordEncoder.encode(newPassword));
+
+        userRepository.save(user);
+    }
 
 
     /* ================= REPLACE COURSES ================= */
+
     @Transactional
     public void updateAssignedCourses(List<Long> courseIds, Long cmId) {
 
-        institutionCourseManagerRepository.deleteByContentManagerId(cmId);
+        institutionCourseManagerRepository.deleteByContentManager_Id(cmId);
 
         for (Long courseId : courseIds) {
             assignCourseToContentManager(courseId, cmId);

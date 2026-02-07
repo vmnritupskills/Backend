@@ -3,13 +3,10 @@ package com.example.lms.controller;
 import com.example.lms.dto.*;
 import com.example.lms.entity.CourseSubtopic;
 import com.example.lms.entity.CourseTopic;
-import com.example.lms.security.UserPrincipal;
 import com.example.lms.service.CourseContentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,21 +32,32 @@ public class CourseContentController {
     }
 
     @GetMapping("/topics/{courseId}")
-    public ResponseEntity<List<CourseTopic>> getTopics(
+    public ResponseEntity<List<CourseTopicResponseDTO>> getTopics(
+            @RequestParam Long cmId,
             @PathVariable Long courseId
     ) {
         return ResponseEntity.ok(
-                service.getTopicsByCourse(courseId)
+                service.getTopicsByCourse(cmId, courseId)
+                        .stream()
+                        .map(topic -> new CourseTopicResponseDTO(
+                                topic.getId(),
+                                topic.getTitle(),
+                                topic.getDurationMinutes(),
+                                topic.getCourse().getId()
+                        ))
+                        .toList()
         );
     }
 
+
     @PutMapping("/topics/{topicId}")
     public ResponseEntity<CourseTopic> updateTopic(
+            @RequestParam Long cmId,
             @PathVariable Long topicId,
             @RequestBody @Valid UpdateTopicDTO dto
     ) {
         return ResponseEntity.ok(
-                service.updateTopic(topicId, dto)
+                service.updateTopic(cmId, topicId, dto)
         );
     }
 
@@ -75,8 +83,6 @@ public class CourseContentController {
         );
     }
 
-
-
     @GetMapping("/subtopics/{topicId}")
     public ResponseEntity<List<CourseSubtopic>> getSubtopics(
             @PathVariable Long topicId
@@ -85,6 +91,19 @@ public class CourseContentController {
                 service.getSubtopicsByTopic(topicId)
         );
     }
+
+    @PutMapping(value = "/subtopics/{subtopicId}", consumes = "multipart/form-data")
+    public ResponseEntity<CourseSubtopic> updateSubtopic(
+            @RequestParam Long cmId,
+            @PathVariable Long subtopicId,
+            @ModelAttribute @Valid UpdateSubtopicDTO dto,
+            @RequestParam(value = "file", required = false) MultipartFile file
+    ) {
+        return ResponseEntity.ok(
+                service.updateSubtopic(cmId, subtopicId, dto, file)
+        );
+    }
+
 
     @DeleteMapping("/subtopics/{subtopicId}")
     public ResponseEntity<Void> deleteSubtopic(
@@ -115,6 +134,24 @@ public class CourseContentController {
                 service.getAverageCourseCompletion(cmId, courseId)
         );
     }
+    /* === pdf ==*/
+    @GetMapping("/subtopics/{id}/stream")
+    public ResponseEntity<byte[]> streamSubtopic(
+            @PathVariable Long id
+    ) {
+        return service.streamSubtopicContent(id);
+    }
+
+    /*==doc ==*/
+    @GetMapping("/subtopics/{id}/preview-url")
+    public ResponseEntity<String> getPreviewUrl(
+            @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(
+                service.getSubtopicPreviewUrl(id)
+        );
+    }
+
+
 
 }
-

@@ -72,7 +72,7 @@ public class ContentManagerController {
     })
     @PreAuthorize("hasAnyRole('ADMIN','CONTENT_MANAGER')") // for student also
     @GetMapping("/{id}")
-    public ResponseEntity<ContentManager> getContentManager(
+    public ResponseEntity<ContentManagerDetailResponseDTO> getContentManager(
             @PathVariable Long id,
             @RequestParam Long institutionId) {
 
@@ -80,6 +80,7 @@ public class ContentManagerController {
                 contentManagerService.getContentManager(id, institutionId)
         );
     }
+
     /* ================= UPDATE ================= */
     @Operation(summary = "Update Content Manager")
     @ApiResponses({
@@ -162,6 +163,23 @@ public class ContentManagerController {
         );
         return ResponseEntity.ok("Courses assigned successfully");
     }
+
+    @Operation(summary = "Update Content Manager password")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Password updated successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Content Manager not found")
+    })
+    @PreAuthorize("hasAnyRole('ADMIN','CONTENT_MANAGER')")
+    @PutMapping("/{id}/password")
+    public ResponseEntity<String> updatePassword(
+            @PathVariable Long id,
+            @RequestBody @Valid UpdatePasswordRequestDTO dto) {
+
+        contentManagerService.updatePassword(id, dto.newPassword());
+        return ResponseEntity.ok("Password updated successfully");
+    }
+
 
     /* ================= UNASSIGN COURSE ================= */
     @Operation(summary = "Unassign course from Content Manager")

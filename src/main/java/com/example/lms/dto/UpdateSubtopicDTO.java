@@ -1,18 +1,22 @@
 package com.example.lms.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import com.example.lms.entity.CourseSubtopic;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 
-public record UpdateSubtopicDTO(
+@Getter
+@Setter
+public class UpdateSubtopicDTO {
 
-        @NotBlank
-        String title,
+    @NotNull
+    private String title;
 
-        @NotNull
-        ContentType contentType,
+    @NotNull
+    private ContentType contentType;
 
-        String textContent,
+    private String textContent;
 
-        @NotNull
-        Integer durationMinutes
-) {}
+    @NotNull
+    private Integer durationMinutes;
+}

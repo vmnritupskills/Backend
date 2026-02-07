@@ -32,7 +32,7 @@ public class AssignmentService {
         CourseTopic topic = topicRepo.findById(dto.topicId())
                 .orElseThrow(() -> new IllegalArgumentException("Topic not found"));
 
-        if (!icmRepo.existsByCourseIdAndContentManagerId(
+        if (!icmRepo.existsByCourse_IdAndContentManager_Id(
                 topic.getCourse().getId(), cmId)) {
             throw new SecurityException("Access denied");
         }
@@ -66,7 +66,7 @@ public class AssignmentService {
         CourseTopic topic = topicRepo.findById(topicId)
                 .orElseThrow(() -> new IllegalArgumentException("Topic not found"));
 
-        if (!icmRepo.existsByCourseIdAndContentManagerId(
+        if (!icmRepo.existsByCourse_IdAndContentManager_Id(
                 topic.getCourse().getId(), cmId)) {
             throw new SecurityException("Access denied");
         }
@@ -76,6 +76,24 @@ public class AssignmentService {
                 .map(this::toDTO)
                 .toList();
     }
+
+    @Transactional(readOnly = true)
+    public List<AssignmentResponseDTO> getAllAssignments(Long cmId) {
+
+        // get all courses handled by this CM
+        List<Long> courseIds =
+                icmRepo.findCourseIdsByContentManagerId(cmId);
+
+        if (courseIds.isEmpty()) {
+            return List.of();
+        }
+
+        return assignmentRepo.findByTopic_Course_IdIn(courseIds)
+                .stream()
+                .map(this::toDTO)
+                .toList();
+    }
+
 
     /* ================= UPDATE ================= */
 
@@ -89,7 +107,7 @@ public class AssignmentService {
         Assignment assignment = assignmentRepo.findById(assignmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Assignment not found"));
 
-        if (!icmRepo.existsByCourseIdAndContentManagerId(
+        if (!icmRepo.existsByCourse_IdAndContentManager_Id(
                 assignment.getTopic().getCourse().getId(), cmId)) {
             throw new SecurityException("Access denied");
         }
@@ -113,7 +131,7 @@ public class AssignmentService {
         Assignment assignment = assignmentRepo.findById(assignmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Assignment not found"));
 
-        if (!icmRepo.existsByCourseIdAndContentManagerId(
+        if (!icmRepo.existsByCourse_IdAndContentManager_Id(
                 assignment.getTopic().getCourse().getId(), cmId)) {
             throw new SecurityException("Access denied");
         }
@@ -132,7 +150,7 @@ public class AssignmentService {
         Assignment assignment = assignmentRepo.findById(assignmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Assignment not found"));
 
-        if (!icmRepo.existsByCourseIdAndContentManagerId(
+        if (!icmRepo.existsByCourse_IdAndContentManager_Id(
                 assignment.getTopic().getCourse().getId(), cmId)) {
             throw new SecurityException("Access denied");
         }

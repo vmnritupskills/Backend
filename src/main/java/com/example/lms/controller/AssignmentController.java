@@ -42,6 +42,18 @@ public class AssignmentController {
         );
     }
 
+    /* get all */
+    @GetMapping
+    public ResponseEntity<List<AssignmentResponseDTO>> getAllAssignments(
+            @RequestParam Long cmId
+    ) {
+        return ResponseEntity.ok(
+                service.getAllAssignments(cmId)
+        );
+    }
+
+
+
     /* ================= UPDATE ================= */
 
     @PutMapping(value = "/{assignmentId}", consumes = "multipart/form-data")

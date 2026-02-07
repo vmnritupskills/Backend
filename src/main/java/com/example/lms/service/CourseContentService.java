@@ -4,6 +4,7 @@ import com.example.lms.dto.*;
 import com.example.lms.entity.*;
 import com.example.lms.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,12 +25,12 @@ public class CourseContentService {
     private final EnrollmentRepository enrollmentRepository;
     private final QuizAttemptRepository attemptRepo;
 
-
     /* ================= TOPIC ================= */
 
     public CourseTopic createTopic(Long cmId, CreateTopicDTO dto) {
 
-        if (!icmRepo.existsByCourseIdAndContentManagerId(dto.courseId(), cmId)) {
+        if (!icmRepo.existsByCourse_IdAndContentManager_Id(
+                dto.courseId(), cmId)) {
             throw new SecurityException("Access denied");
         }
 
@@ -46,14 +47,25 @@ public class CourseContentService {
     }
 
     @Transactional(readOnly = true)
-    public List<CourseTopic> getTopicsByCourse(Long courseId) {
+    public List<CourseTopic> getTopicsByCourse(Long cmId, Long courseId) {
+
+        if (!icmRepo.existsByCourse_IdAndContentManager_Id(
+                courseId, cmId)) {
+            throw new SecurityException("Access denied");
+        }
+
         return topicRepo.findByCourseId(courseId);
     }
 
-    public CourseTopic updateTopic(Long topicId, UpdateTopicDTO dto) {
+    public CourseTopic updateTopic(Long cmId, Long topicId, UpdateTopicDTO dto) {
 
         CourseTopic topic = topicRepo.findById(topicId)
                 .orElseThrow(() -> new IllegalArgumentException("Topic not found"));
+
+        if (!icmRepo.existsByCourse_IdAndContentManager_Id(
+                topic.getCourse().getId(), cmId)) {
+            throw new SecurityException("Access denied");
+        }
 
         topic.setTitle(dto.title());
         topic.setDurationMinutes(dto.durationMinutes());
@@ -66,7 +78,7 @@ public class CourseContentService {
         CourseTopic topic = topicRepo.findById(topicId)
                 .orElseThrow(() -> new IllegalArgumentException("Topic not found"));
 
-        if (!icmRepo.existsByCourseIdAndContentManagerId(
+        if (!icmRepo.existsByCourse_IdAndContentManager_Id(
                 topic.getCourse().getId(), cmId)) {
             throw new SecurityException("Access denied");
         }
@@ -85,7 +97,7 @@ public class CourseContentService {
         CourseTopic topic = topicRepo.findById(dto.getTopicId())
                 .orElseThrow(() -> new IllegalArgumentException("Topic not found"));
 
-        if (!icmRepo.existsByCourseIdAndContentManagerId(
+        if (!icmRepo.existsByCourse_IdAndContentManager_Id(
                 topic.getCourse().getId(), cmId)) {
             throw new SecurityException("Access denied");
         }
@@ -124,7 +136,12 @@ public class CourseContentService {
         return subtopicRepo.findByTopicId(topicId);
     }
 
+    public void deleteSubtopic(Long subtopicId) {
+        subtopicRepo.deleteById(subtopicId);
+    }
+
     public CourseSubtopic updateSubtopic(
+            Long cmId,
             Long subtopicId,
             UpdateSubtopicDTO dto,
             MultipartFile file
@@ -133,30 +150,43 @@ public class CourseContentService {
         CourseSubtopic subtopic = subtopicRepo.findById(subtopicId)
                 .orElseThrow(() -> new IllegalArgumentException("Subtopic not found"));
 
-        subtopic.setTitle(dto.title());
-        subtopic.setDurationMinutes(dto.durationMinutes());
-        subtopic.setContentType(dto.contentType());
+        CourseTopic topic = subtopic.getTopic();
 
-        if (dto.contentType() == ContentType.TEXT) {
-            subtopic.setTextContent(dto.textContent());
-            subtopic.setContentUrl(null);
+        // 🔐 CM access check
+        if (!icmRepo.existsByCourse_IdAndContentManager_Id(
+                topic.getCourse().getId(), cmId)) {
+            throw new SecurityException("Access denied");
         }
 
-        if ((dto.contentType() == ContentType.PDF ||
-                dto.contentType() == ContentType.VIDEO) && file != null) {
+        String contentUrl = subtopic.getContentUrl();
+        String textContent = subtopic.getTextContent();
 
-            subtopic.setContentUrl(
-                    s3Service.uploadFile(file, "course-content")
-            );
-            subtopic.setTextContent(null);
+        /* ===== Content handling ===== */
+
+        if (dto.getContentType() == ContentType.PDF ||
+                dto.getContentType() == ContentType.VIDEO) {
+
+            if (file != null && !file.isEmpty()) {
+                contentUrl = s3Service.uploadFile(file, "course-content");
+            }
+
+            textContent = null; // clear TEXT
         }
+
+        if (dto.getContentType() == ContentType.TEXT) {
+            textContent = dto.getTextContent();
+            contentUrl = null; // clear FILE
+        }
+
+        subtopic.setTitle(dto.getTitle());
+        subtopic.setContentType(dto.getContentType());
+        subtopic.setContentUrl(contentUrl);
+        subtopic.setTextContent(textContent);
+        subtopic.setDurationMinutes(dto.getDurationMinutes());
 
         return subtopicRepo.save(subtopic);
     }
 
-    public void deleteSubtopic(Long subtopicId) {
-        subtopicRepo.deleteById(subtopicId);
-    }
 
     /* ================= COURSE STRUCTURE ================= */
 
@@ -166,7 +196,8 @@ public class CourseContentService {
             Long courseId
     ) {
 
-        if (!icmRepo.existsByCourseIdAndContentManagerId(courseId, cmId)) {
+        if (!icmRepo.existsByCourse_IdAndContentManager_Id(
+                courseId, cmId)) {
             throw new SecurityException("Access denied");
         }
 
@@ -179,7 +210,6 @@ public class CourseContentService {
                                 topic.getTitle(),
                                 topic.getDurationMinutes(),
 
-                                // SUBTOPICS
                                 subtopicRepo.findByTopicId(topic.getId())
                                         .stream()
                                         .map(sub -> new SubtopicResponseDTO(
@@ -192,7 +222,6 @@ public class CourseContentService {
                                         ))
                                         .toList(),
 
-                                // QUIZZES
                                 quizRepo.findByTopicId(topic.getId())
                                         .stream()
                                         .map(q -> new QuizStatusDTO(
@@ -208,11 +237,16 @@ public class CourseContentService {
         return new CourseContentResponseDTO(courseId, topicDtos);
     }
 
-    @Transactional(readOnly = true)
-    public CourseCompletionStatsDTO getAverageCourseCompletion(Long cmId, Long courseId) {
+    /* ================= COURSE COMPLETION ================= */
 
-        // CM authorization
-        if (!icmRepo.existsByCourseIdAndContentManagerId(courseId, cmId)) {
+    @Transactional(readOnly = true)
+    public CourseCompletionStatsDTO getAverageCourseCompletion(
+            Long cmId,
+            Long courseId
+    ) {
+
+        if (!icmRepo.existsByCourse_IdAndContentManager_Id(
+                courseId, cmId)) {
             throw new SecurityException("Access denied");
         }
 
@@ -241,22 +275,18 @@ public class CourseContentService {
 
                 if (quizzes.isEmpty()) continue;
 
-                Quiz quiz = quizzes.get(0); // one quiz per topic (your design)
+                Quiz quiz = quizzes.get(0);
 
                 boolean passed =
                         attemptRepo.existsByQuizIdAndStudentIdAndPassedTrue(
                                 quiz.getId(), studentId
                         );
 
-                if (passed) {
-                    completedTopics++;
-                }
+                if (passed) completedTopics++;
             }
 
-            double studentCompletion =
+            totalCompletionSum +=
                     ((double) completedTopics / totalTopics) * 100;
-
-            totalCompletionSum += studentCompletion;
         }
 
         double averageCompletion =
@@ -264,9 +294,41 @@ public class CourseContentService {
 
         return new CourseCompletionStatsDTO(
                 courseId,
-                Math.round(averageCompletion * 100.0) / 100.0, // 2 decimals
+                Math.round(averageCompletion * 100.0) / 100.0,
                 enrollments.size()
         );
     }
+
+    /* ====== to strema pdf */
+    @Transactional(readOnly = true)
+    public ResponseEntity<byte[]> streamSubtopicContent(Long subtopicId) {
+
+        CourseSubtopic subtopic = subtopicRepo.findById(subtopicId)
+                .orElseThrow(() -> new IllegalArgumentException("Subtopic not found"));
+
+        if (subtopic.getContentUrl() == null) {
+            throw new IllegalArgumentException("No file available for this subtopic");
+        }
+
+        S3FileResponse file = s3Service.downloadFile(subtopic.getContentUrl());
+
+        return ResponseEntity.ok()
+                .header("Content-Disposition",
+                        "inline; filename=\"" + file.fileName() + "\"")
+                .header("Content-Type", file.contentType())
+                .contentLength(file.data().length)
+                .body(file.data());
+    }
+
+    @Transactional(readOnly = true)
+    public String getSubtopicPreviewUrl(Long subtopicId) {
+
+        CourseSubtopic subtopic = subtopicRepo.findById(subtopicId)
+                .orElseThrow(() -> new IllegalArgumentException("Subtopic not found"));
+
+        return s3Service.generatePreviewUrl(subtopic.getContentUrl());
+    }
+
+
 
 }

@@ -7,4 +7,8 @@ import java.util.List;
 
 public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
     List<Assignment> findByTopic_Id(Long topicId);
+
+
+    List<Assignment> findByTopic_Course_IdIn(List<Long> courseIds);
+
 }

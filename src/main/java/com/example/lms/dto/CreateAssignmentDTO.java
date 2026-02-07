@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat;
 
 public record CreateAssignmentDTO(
 
@@ -14,5 +16,8 @@ public record CreateAssignmentDTO(
         String title,
 
         @NotNull
+        @DateTimeFormat(pattern = "dd-MM-yyyy HH:mm")
         LocalDateTime deadline
 ) {}
+
+

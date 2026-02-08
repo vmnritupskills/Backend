@@ -37,7 +37,7 @@ class StudentControllerTest {
     private JwtUtil jwtUtil;
 
     @Test
-    @WithMockUser(roles = "INSTITUTION")
+    @WithMockUser(roles = "ADMIN")
     void createStudent_success() throws Exception {
         CreateStudentRequestDTO dto = new CreateStudentRequestDTO(
                 1L,

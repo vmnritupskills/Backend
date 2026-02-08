@@ -42,11 +42,12 @@ class EnrollmentControllerTest {
     /* ================= SINGLE ENROLL ================= */
 
     @Test
-    @WithMockUser(roles = "INSTITUTION")
+    @WithMockUser(roles = "ADMIN")
     void enrollStudent_success() throws Exception {
-        EnrollStudentRequestDTO dto = new EnrollStudentRequestDTO(1L, "STUDENT001", 101L);
+        EnrollStudentRequestDTO dto =
+                new EnrollStudentRequestDTO(1L, "STUDENT001", 101L);
 
-        doNothing().when(enrollmentService).enrollStudent(any(EnrollStudentRequestDTO.class));
+        doNothing().when(enrollmentService).enrollStudent(any());
 
         mockMvc.perform(post("/api/institution/enrollments")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -55,10 +56,11 @@ class EnrollmentControllerTest {
                 .andExpect(content().string("Student enrolled successfully"));
     }
 
+
     /* ================= BULK ENROLL ================= */
 
     @Test
-    @WithMockUser(roles = "INSTITUTION")
+    @WithMockUser(roles = "ADMIN")
     void bulkEnrollStudents_success() throws Exception {
         BulkEnrollStudentsRequestDTO dto = new BulkEnrollStudentsRequestDTO(
                 1L,

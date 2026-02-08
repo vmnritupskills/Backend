@@ -9,4 +9,6 @@ public interface CourseSubtopicRepository
         extends JpaRepository<CourseSubtopic, Long> {
 
     List<CourseSubtopic> findByTopicId(Long topicId);
+    long countByTopic_Course_Id(Long courseId);
+
 }

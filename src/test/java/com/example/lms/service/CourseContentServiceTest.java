@@ -360,12 +360,21 @@ public class CourseContentServiceTest {
         when(subtopicRepo.save(any(CourseSubtopic.class))).thenReturn(subtopic);
 
         // Act
-        CourseSubtopic result = service.updateSubtopic(1L, 1L, updateSubtopicDTO, null);
+        CourseSubtopic result = service.updateSubtopic(
+                1L,
+                1L,
+                "Array Basics - Updated",     // title
+                ContentType.TEXT,             // contentType
+                "Updated content",            // textContent
+                45,                           // duration
+                null                          // file
+        );
 
         // Assert
         assertThat(result).isNotNull();
         verify(subtopicRepo, times(1)).save(any(CourseSubtopic.class));
     }
+
 
     @Test
     @DisplayName("Test 16: Should throw exception when updating non-existent subtopic")
@@ -374,12 +383,23 @@ public class CourseContentServiceTest {
         when(subtopicRepo.findById(999L)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThatThrownBy(() -> service.updateSubtopic(1L, 999L, updateSubtopicDTO, null))
+        assertThatThrownBy(() ->
+                service.updateSubtopic(
+                        1L,
+                        999L,
+                        "Title",
+                        ContentType.TEXT,
+                        "Text",
+                        30,
+                        null
+                )
+        )
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Subtopic not found");
 
         verify(subtopicRepo, never()).save(any());
     }
+
 
     // ===== DELETE SUBTOPIC TESTS =====
 

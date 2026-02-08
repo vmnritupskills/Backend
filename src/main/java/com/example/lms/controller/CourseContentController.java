@@ -96,13 +96,26 @@ public class CourseContentController {
     public ResponseEntity<CourseSubtopic> updateSubtopic(
             @RequestParam Long cmId,
             @PathVariable Long subtopicId,
-            @ModelAttribute @Valid UpdateSubtopicDTO dto,
-            @RequestParam(value = "file", required = false) MultipartFile file
+
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) ContentType contentType,
+            @RequestParam(required = false) String textContent,
+            @RequestParam(required = false) Integer durationMinutes,
+            @RequestParam(required = false) MultipartFile file
     ) {
         return ResponseEntity.ok(
-                service.updateSubtopic(cmId, subtopicId, dto, file)
+                service.updateSubtopic(
+                        cmId,
+                        subtopicId,
+                        title,
+                        contentType,
+                        textContent,
+                        durationMinutes,
+                        file
+                )
         );
     }
+
 
 
     @DeleteMapping("/subtopics/{subtopicId}")

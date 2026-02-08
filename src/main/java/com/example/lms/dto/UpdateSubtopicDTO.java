@@ -9,14 +9,14 @@ import lombok.Setter;
 @Setter
 public class UpdateSubtopicDTO {
 
-    @NotNull
+
     private String title;
 
-    @NotNull
+
     private ContentType contentType;
 
     private String textContent;
 
-    @NotNull
+
     private Integer durationMinutes;
 }

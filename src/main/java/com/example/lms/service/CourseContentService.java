@@ -143,7 +143,10 @@ public class CourseContentService {
     public CourseSubtopic updateSubtopic(
             Long cmId,
             Long subtopicId,
-            UpdateSubtopicDTO dto,
+            String title,
+            ContentType contentType,
+            String textContent,
+            Integer durationMinutes,
             MultipartFile file
     ) {
 
@@ -158,34 +161,46 @@ public class CourseContentService {
             throw new SecurityException("Access denied");
         }
 
-        String contentUrl = subtopic.getContentUrl();
-        String textContent = subtopic.getTextContent();
+        /* ===== BASIC FIELDS ===== */
 
-        /* ===== Content handling ===== */
+        if (title != null) {
+            subtopic.setTitle(title);
+        }
 
-        if (dto.getContentType() == ContentType.PDF ||
-                dto.getContentType() == ContentType.VIDEO) {
+        if (durationMinutes != null) {
+            subtopic.setDurationMinutes(durationMinutes);
+        }
 
-            if (file != null && !file.isEmpty()) {
-                contentUrl = s3Service.uploadFile(file, "course-content");
+        /* ===== CONTENT HANDLING ===== */
+
+        if (contentType != null) {
+
+            subtopic.setContentType(contentType);
+
+            // 📝 TEXT content
+            if (contentType == ContentType.TEXT) {
+                subtopic.setTextContent(textContent);
+                subtopic.setContentUrl(null);
             }
 
-            textContent = null; // clear TEXT
-        }
+            // 📄 FILE content
+            if (contentType == ContentType.PDF ||
+                    contentType == ContentType.VIDEO ||
+                    contentType == ContentType.DOC) {
 
-        if (dto.getContentType() == ContentType.TEXT) {
-            textContent = dto.getTextContent();
-            contentUrl = null; // clear FILE
-        }
+                if (file != null && !file.isEmpty()) {
+                    String url = s3Service.uploadFile(file, "course-content");
+                    subtopic.setContentUrl(url);
+                }
 
-        subtopic.setTitle(dto.getTitle());
-        subtopic.setContentType(dto.getContentType());
-        subtopic.setContentUrl(contentUrl);
-        subtopic.setTextContent(textContent);
-        subtopic.setDurationMinutes(dto.getDurationMinutes());
+                subtopic.setTextContent(null);
+            }
+        }
 
         return subtopicRepo.save(subtopic);
     }
+
+
 
 
     /* ================= COURSE STRUCTURE ================= */

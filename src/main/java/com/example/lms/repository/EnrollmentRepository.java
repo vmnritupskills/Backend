@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
 
@@ -54,5 +55,21 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
     );
 
     List<Enrollment> findByCourseIdAndIsEnrolledTrue(Long courseId);
+
+    @Query("""
+        select e
+        from Enrollment e
+        join fetch e.course
+        where e.student.id = :studentId
+          and e.isEnrolled = true
+    """)
+    List<Enrollment> findActiveEnrollmentsWithCourse(
+            @Param("studentId") Long studentId
+    );
+
+    Optional<Enrollment> findByStudent_IdAndCourse_IdAndIsEnrolledTrue(
+            Long studentId,
+            Long courseId
+    );
 
 }

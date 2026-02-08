@@ -104,7 +104,7 @@ class AuthServiceTest {
             assertNotNull(response);
             assertEquals("jwt-token", response.token());
             assertEquals(10L, response.userId());
-            assertEquals("Admin", response.name());
+            assertEquals("Admin", response.username());
             assertEquals("admin@lms.com", response.email());
             assertEquals("ROLE_ADMIN", response.role());
 
@@ -153,7 +153,7 @@ class AuthServiceTest {
             // Assert
             assertEquals("jwt-token", response.token());
             assertEquals(10L, response.userId());
-            assertEquals("Admin", response.name());
+            assertEquals("Admin", response.username());
             assertEquals("admin@lms.com", response.email());
             assertEquals("ROLE_ADMIN", response.role());
         }

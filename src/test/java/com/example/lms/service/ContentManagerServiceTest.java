@@ -622,8 +622,8 @@ class ContentManagerServiceTest {
 
             // Assert
             assertNotNull(result);
-            assertEquals(10L, result.total());
-            assertEquals(8L, result.active());
+            assertEquals(10L, result.totalContentManagers());
+            assertEquals(8L, result.activeContentManagers());
         }
     }
 
@@ -646,7 +646,7 @@ class ContentManagerServiceTest {
 
             // Assert
             assertNotNull(result);
-            assertEquals(1L, result.cmId());
+            assertEquals(1L, result.contentManagerId());
             assertEquals(25L, result.totalStudents());
         }
     }
@@ -679,8 +679,8 @@ class ContentManagerServiceTest {
         void getStudents_success() {
             // Arrange
             List<EnrolledStudentResponseDTO> students = List.of(
-                    new EnrolledStudentResponseDTO(1L, "Student1", "stu1@test.com"),
-                    new EnrolledStudentResponseDTO(2L, "Student2", "stu2@test.com")
+                    new EnrolledStudentResponseDTO(1L, "Student1", "stu1@test.com","java"),
+                    new EnrolledStudentResponseDTO(2L, "Student2", "stu2@test.com","java")
             );
 
             when(contentManagerRepository.findById(1L))
@@ -789,10 +789,6 @@ class ContentManagerServiceTest {
         @Test
         @DisplayName("Should handle empty course list")
         void updateAssignedCourses_emptyList_success() {
-            // Arrange
-            when(contentManagerRepository.findById(1L))
-                    .thenReturn(Optional.of(testContentManager));
-
             // Act
             contentManagerService.updateAssignedCourses(new ArrayList<>(), 1L);
 

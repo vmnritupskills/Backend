@@ -56,6 +56,7 @@ public class InstitutionService {
                 .address(dto.address())
                 .aisheCode(dto.aisheCode())
                 .user(user)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         institutionRepository.save(institution);

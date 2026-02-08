@@ -26,43 +26,15 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-
-package com.example.lms.service;
-
-import com.example.lms.dto.CreateInstitutionRequestDTO;
-import com.example.lms.dto.InstitutionResponseDTO;
-import com.example.lms.dto.UpdateInstitutionRequestDTO;
-import com.example.lms.entity.Institution;
-import com.example.lms.entity.Role;
-import com.example.lms.entity.User;
-import com.example.lms.exception.BadRequestException;
-import com.example.lms.exception.ResourceNotFoundException;
-import com.example.lms.repository.InstitutionRepository;
-import com.example.lms.repository.RoleRepository;
-import com.example.lms.repository.UserRepository;
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+
 
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("InstitutionService Tests")

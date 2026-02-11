@@ -1,73 +1,64 @@
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${SERVER_PORT:8082}
 
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/test_name}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
 
   jpa:
     open-in-view: false
-    show-sql: true
+    show-sql: ${SHOW_SQL:true}
     hibernate:
-      ddl-auto: validate
+      ddl-auto: ${DDL_AUTO:update}
     properties:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
   flyway:
-    enabled: false
+    enabled: ${FLYWAY_ENABLED:false}
 
   servlet:
     multipart:
       enabled: true
-      max-file-size: 10MB
-      max-request-size: 10MB
+      max-file-size: ${MAX_FILE_SIZE:10MB}
+      max-request-size: ${MAX_REQUEST_SIZE:10MB}
 
   threads:
     virtual:
       enabled: true
 
-# ===============================
-# JWT (RSA)
-# ===============================
 jwt:
-  keystore:
-    path: ${JWT_KEYSTORE_PATH}
-    type: ${JWT_KEYSTORE_TYPE}
-    password: ${JWT_KEYSTORE_PASSWORD}
-    key-alias: ${JWT_KEYSTORE_KEY_ALIAS}
-    key-password: ${JWT_KEYSTORE_KEY_PASSWORD}
-
   access-token:
-    expiry: ${JWT_ACCESS_TOKEN_EXPIRY}
+    expiry: ${JWT_ACCESS_EXPIRY:3600}
   refresh-token:
-    expiry: ${JWT_REFRESH_TOKEN_EXPIRY}
+    expiry: ${JWT_REFRESH_EXPIRY:604800}
+  keystore:
+    path: ${JWT_KEYSTORE_PATH:classpath:jwt-keystore.p12}
+    type: ${JWT_KEYSTORE_TYPE:PKCS12}
+    password: ${JWT_KEYSTORE_PASSWORD:changeit}
+    key-alias: ${JWT_KEY_ALIAS:jwt-key}
+    key-password: ${JWT_KEY_PASSWORD:changeit}
 
-# ===============================
-# AWS S3
-# ===============================
 aws:
-  region: ${AWS_REGION}
+  region: ${AWS_REGION:ap-south-1}
   s3:
-    bucket-name: ${AWS_S3_BUCKET}
-  access-key-id: ${AWS_ACCESS_KEY_ID}
-  secret-access-key: ${AWS_SECRET_ACCESS_KEY}
+    bucket-name: ${AWS_S3_BUCKET:lms-syllabus-bucket}
+  access-key-id: ${AWS_ACCESS_KEY:your-access-key}
+  secret-access-key: ${AWS_SECRET_KEY:your-secret-key}
 
-# ===============================
-# LOGGING
-# ===============================
+ai:
+  question-service:
+    base-url: ${AI_SERVICE_BASE_URL:http://localhost:8000}
+
 logging:
   level:
-    org.springframework.security: INFO
+    org.springframework.security: DEBUG
     org.hibernate.SQL: DEBUG
 
-# ===============================
-# ACTUATOR
-# ===============================
 management:
   endpoints:
     web:

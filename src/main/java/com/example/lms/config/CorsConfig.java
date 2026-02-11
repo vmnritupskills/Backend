@@ -16,10 +16,11 @@ public class CorsConfig {
 
         CorsConfiguration config = new CorsConfiguration();
 
-
+        //Allowed frontend origins
         config.setAllowedOrigins(List.of(
-                "http://localhost:8080",          // local React
-                "http://65.1.92.147:8081"         // deployed frontend
+                "http://localhost:8080",
+                "http://35.154.181.95:8001",
+                "http://35.154.181.95:8000"
         ));
 
 
@@ -28,21 +29,33 @@ public class CorsConfig {
                 "POST",
                 "PUT",
                 "DELETE",
+                "PATCH",
                 "OPTIONS"
         ));
 
 
-        config.setAllowedHeaders(List.of("*"));
+        config.setAllowedHeaders(List.of(
+                "Authorization",
+                "Content-Type",
+                "X-Requested-With",
+                "Accept",
+                "Origin"
+        ));
 
 
-        config.setExposedHeaders(List.of("Authorization"));
+        config.setExposedHeaders(List.of(
+                "Authorization",
+                "Content-Disposition"
+        ));
 
 
         config.setAllowCredentials(true);
 
+
+        config.setMaxAge(3600L);
+
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
-
         source.registerCorsConfiguration("/**", config);
 
         return new CorsFilter(source);

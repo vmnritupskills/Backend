@@ -26,6 +26,6 @@ public class CourseTopic {
     private Course course;
 
     @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference   // ✅ IMPORTANT
+    @JsonManagedReference
     private List<CourseSubtopic> subtopics;
 }

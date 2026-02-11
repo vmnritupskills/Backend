@@ -8,16 +8,19 @@ import com.example.lms.exception.ForbiddenException;
 import com.example.lms.exception.GlobalExceptionHandler;
 import com.example.lms.exception.ResourceNotFoundException;
 import com.example.lms.service.ContentManagerService;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collections;
@@ -26,13 +29,11 @@ import java.util.List;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+
 
 @WebMvcTest({ContentManagerController.class, SecurityConfig.class})
 @Import({GlobalExceptionHandler.class})
@@ -45,10 +46,10 @@ class ContentManagerControllerTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @MockitoBean
+    @MockBean
     private ContentManagerService contentManagerService;
 
-    @MockitoBean
+    @MockBean
     private JwtUtil jwtUtil;
 
     // ==================== CREATE TESTS ====================

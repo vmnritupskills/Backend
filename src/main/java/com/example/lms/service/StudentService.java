@@ -1,13 +1,17 @@
 package com.example.lms.service;
 
+import com.example.lms.dto.CreateStudentRequestDTO;
+import com.example.lms.dto.UpdateStudentRequestDTO;
+import com.example.lms.dto.StudentResponseDTO;
+import com.example.lms.entity.*;
+import com.example.lms.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.lms.dto.CreateStudentRequestDTO;
-import com.example.lms.entity.*;
-import com.example.lms.repository.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,14 +23,12 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final PasswordEncoder passwordEncoder;
 
-    /* ================= CREATE STUDENT ================= */
+    /* ================= CREATE ================= */
     @Transactional
     public void createStudent(CreateStudentRequestDTO dto) {
 
         Institution institution = institutionRepository.findById(dto.institutionId())
-                .orElseThrow(() ->
-                        new IllegalArgumentException("Institution not found")
-                );
+                .orElseThrow(() -> new IllegalArgumentException("Institution not found"));
 
         if (studentRepository
                 .findByRegNoAndInstitution_Id(dto.regNo(), institution.getId())
@@ -35,9 +37,7 @@ public class StudentService {
         }
 
         Role studentRole = roleRepository.findByName("STUDENT")
-                .orElseThrow(() ->
-                        new RuntimeException("STUDENT role not found")
-                );
+                .orElseThrow(() -> new RuntimeException("STUDENT role not found"));
 
         User user = User.builder()
                 .email(dto.email())
@@ -60,5 +60,76 @@ public class StudentService {
                 .build();
 
         studentRepository.save(student);
+    }
+
+    /* ================= GET ALL ================= */
+    public List<StudentResponseDTO> getAllStudents() {
+        return studentRepository.findAll()
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    /* ================= GET BY ID ================= */
+    public StudentResponseDTO getStudentById(Long id) {
+
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+
+        return mapToDTO(student);
+    }
+
+    /* ================= UPDATE ================= */
+    @Transactional
+    public void updateStudent(Long id, UpdateStudentRequestDTO dto) {
+
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+
+        Institution institution = institutionRepository.findById(dto.institutionId())
+                .orElseThrow(() -> new IllegalArgumentException("Institution not found"));
+
+        student.setRegNo(dto.regNo());
+        student.setName(dto.name());
+        student.setEmail(dto.email());
+        student.setDepartment(dto.department());
+        student.setGraduationYear(dto.graduationYear());
+        student.setInstitution(institution);
+
+        User user = student.getUser();
+        user.setName(dto.name());
+        user.setEmail(dto.email());
+
+        if (dto.password() != null && !dto.password().isBlank()) {
+            user.setPassword(passwordEncoder.encode(dto.password()));
+        }
+
+        userRepository.save(user);
+        studentRepository.save(student);
+    }
+
+    /* ================= DELETE ================= */
+    @Transactional
+    public void deleteStudent(Long id) {
+
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+
+        userRepository.delete(student.getUser());
+        studentRepository.delete(student);
+    }
+
+    /* ================= MAPPER ================= */
+    private StudentResponseDTO mapToDTO(Student student) {
+
+        return new StudentResponseDTO(
+                student.getId(),
+                student.getRegNo(),
+                student.getName(),
+                student.getEmail(),
+                student.getGraduationYear(),
+                student.getDepartment(),
+                student.getInstitution().getId()
+        );
     }
 }

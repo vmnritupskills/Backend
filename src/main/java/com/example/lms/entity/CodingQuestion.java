@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-@NoArgsConstructor          // ✅ REQUIRED
+@NoArgsConstructor          //REQUIRED
 @AllArgsConstructor
 public class CodingQuestion {
 

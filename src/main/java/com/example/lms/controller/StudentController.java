@@ -1,6 +1,7 @@
 package com.example.lms.controller;
 
 import com.example.lms.dto.CreateStudentRequestDTO;
+import com.example.lms.dto.UpdateStudentRequestDTO;
 import com.example.lms.service.StudentService;
 
 import jakarta.validation.Valid;
@@ -42,4 +43,47 @@ public class StudentController {
         studentService.createStudent(dto);
         return ResponseEntity.ok("Student created successfully");
     }
+
+    /* ================= GET ALL STUDENTS ================= */
+    @Operation(summary = "Get All Students", description = "ADMIN gets all students")
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping
+    public ResponseEntity<?> getAllStudents() {
+        return ResponseEntity.ok(studentService.getAllStudents());
+    }
+
+
+    /* ================= GET STUDENT BY ID ================= */
+    @Operation(summary = "Get Student By ID", description = "ADMIN gets student by ID")
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getStudentById(@PathVariable Long id) {
+        return ResponseEntity.ok(studentService.getStudentById(id));
+    }
+
+
+    /* ================= UPDATE STUDENT ================= */
+    @Operation(summary = "Update Student", description = "ADMIN updates student details")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateStudent(
+            @PathVariable Long id,
+            @RequestBody @Valid UpdateStudentRequestDTO dto) {
+
+        studentService.updateStudent(id, dto);
+        return ResponseEntity.ok("Student updated successfully");
+    }
+
+
+
+    /* ================= DELETE STUDENT ================= */
+    @Operation(summary = "Delete Student", description = "ADMIN deletes student")
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteStudent(@PathVariable Long id) {
+
+        studentService.deleteStudent(id);
+        return ResponseEntity.ok("Student deleted successfully");
+    }
+
 }

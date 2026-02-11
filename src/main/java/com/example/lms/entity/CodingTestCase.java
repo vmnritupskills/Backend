@@ -8,7 +8,7 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-@NoArgsConstructor          // ✅ REQUIRED
+@NoArgsConstructor
 @AllArgsConstructor
 public class CodingTestCase {
 

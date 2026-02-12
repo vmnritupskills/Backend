@@ -19,7 +19,7 @@ public class CorsConfig {
         //Allowed frontend origins
         config.setAllowedOrigins(List.of(
                 "http://localhost:8080",
-                "http://35.154.181.95:8001",
+                "http://35.154.181.95:8081",
                 "http://35.154.181.95:8000"
         ));
 

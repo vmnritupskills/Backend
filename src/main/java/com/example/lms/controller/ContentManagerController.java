@@ -294,10 +294,4 @@ public class ContentManagerController {
         );
     }
 
-
-
-
-
-
-
 }

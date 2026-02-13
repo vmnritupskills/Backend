@@ -3,6 +3,7 @@ package com.example.lms.controller;
 import com.example.lms.config.JwtUtil;
 import com.example.lms.config.SecurityConfig;
 import com.example.lms.controller.CourseController;
+import com.example.lms.dto.CourseResponseDTO;
 import com.example.lms.dto.CreateCourseRequestDTO;
 import com.example.lms.entity.Course;
 import com.example.lms.exception.GlobalExceptionHandler;
@@ -117,21 +118,28 @@ class CourseControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void getAllCourses_success() throws Exception {
-        Course course = Course.builder()
-                .id(1L)
-                .name("Java Programming")
-                .courseCode("JAVA101")
-                .duration("4 Months")
-                .semester(1)
-                .build();
 
-        when(courseService.getAllCourses(1L)).thenReturn(List.of(course));
+        CourseResponseDTO dto = new CourseResponseDTO(
+                1L,
+                "Java Programming",
+                "JAVA101",
+                "4",
+                1,
+                null,
+                1L,
+                "ABC Institution"
+        );
+
+        when(courseService.getAllCourses(1L))
+                .thenReturn(List.of(dto));
 
         mockMvc.perform(get("/api/institution/courses")
                         .param("institutionId", "1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Java Programming"));
+                .andExpect(jsonPath("$[0].name").value("Java Programming"))
+                .andExpect(jsonPath("$[0].courseCode").value("JAVA101"));
     }
+
 
     @Test
     @WithMockUser(roles = "CONTENT_MANAGER")

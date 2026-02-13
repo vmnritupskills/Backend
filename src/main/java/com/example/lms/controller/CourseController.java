@@ -1,5 +1,6 @@
 package com.example.lms.controller;
 
+import com.example.lms.dto.CourseResponseDTO;
 import com.example.lms.dto.CreateCourseRequestDTO;
 import com.example.lms.entity.Course;
 import com.example.lms.service.CourseService;
@@ -59,13 +60,13 @@ public class CourseController {
     })
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<List<Course>> getAllCourses(
+    public ResponseEntity<List<CourseResponseDTO>> getAllCourses(
             @RequestParam Long institutionId) {
-
         return ResponseEntity.ok(
                 courseService.getAllCourses(institutionId)
         );
     }
+
 
     /* ================= GET BY ID ================= */
     @Operation(

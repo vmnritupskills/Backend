@@ -1,5 +1,6 @@
 package com.example.lms.service;
 
+import com.example.lms.dto.CourseResponseDTO;
 import com.example.lms.dto.CreateCourseRequestDTO;
 import com.example.lms.entity.Course;
 import com.example.lms.entity.Institution;
@@ -52,11 +53,26 @@ public class CourseService {
     }
 
     /* ================= GET ALL ================= */
-    public List<Course> getAllCourses(Long institutionId) {
+    @Transactional(readOnly = true)
+    public List<CourseResponseDTO> getAllCourses(Long institutionId) {
 
         return courseRepository
-                .findByInstitution_IdAndDeletedAtIsNull(institutionId);
+                .findByInstitution_IdAndDeletedAtIsNull(institutionId)
+                .stream()
+                .map(course -> new CourseResponseDTO(
+                        course.getId(),
+                        course.getName(),
+                        course.getCourseCode(),
+                        course.getDuration(),
+                        course.getSemester(),
+                        course.getSyllabusUrl(),
+                        course.getInstitution().getId(),
+                        course.getInstitution().getName()
+                ))
+                .toList();
     }
+
+
 
     /* ================= GET BY ID ================= */
     public Course getCourseById(Long courseId, Long institutionId) {
